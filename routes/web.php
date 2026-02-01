@@ -7,7 +7,8 @@ Route::get('/', function () {
 })->name('home');
 
 Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'no.tenant'])
     ->name('dashboard');
 
 require __DIR__.'/settings.php';
+require __DIR__.'/tenant.php';
