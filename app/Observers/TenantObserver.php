@@ -11,8 +11,7 @@ class TenantObserver
      */
     public function created(Tenant $tenant): void
     {
-        auth()->user()->update(['tenant_id' => $tenant->id]);
-        auth()->user()->save();
+
     }
 
     /**

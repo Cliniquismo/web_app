@@ -9,5 +9,5 @@ Route::view('tenants/create', 'tenants.create')
 
 Route::get('tenants/{tenant}/edit', function (Tenant $tenant) {
     return view('tenants.edit', compact('tenant'));
-})->middleware(['auth', 'verified'])
+})->middleware(['auth', 'verified', 'can:manage clinics,tenant'])
     ->name('tenants.edit');

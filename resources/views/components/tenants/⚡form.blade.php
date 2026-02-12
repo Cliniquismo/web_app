@@ -39,7 +39,7 @@ new class extends Component {
     {
         $this->validate();
 
-        Tenant::updateOrCreate(
+        $tenant = Tenant::updateOrCreate(
             ['id' => $this->tenant?->id],
             [
                 'name' => $this->name,
@@ -48,6 +48,15 @@ new class extends Component {
                 'active' => $this->active,
             ],
         );
+
+        if (!auth()->user()->tenant_id) {
+            $tenant = Tenant::latest()->first();
+            auth()
+                ->user()
+                ->update(['tenant_id' => $tenant->id]);
+            auth()->user()->assignRole('admin');
+            auth()->user()->save();
+        }
 
         session()->flash('status', 'Tenant salvo com sucesso.');
 

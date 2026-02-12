@@ -11,9 +11,17 @@ class TenantMiddlewareTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function actingAsUser(): User
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
+    }
+
+    protected function actingAsUser(string $role = 'admin'): User
     {
         $user = User::factory()->create();
+        $user->assignRole($role);
 
         $this->actingAs($user);
 
@@ -21,18 +29,18 @@ class TenantMiddlewareTest extends TestCase
     }
 
     /** @test */
-    public function user_without_tenant_is_redirected_to_tenant_create_when_accessing_dashboard()
+    public function admin_without_tenant_is_redirected_to_tenant_create_when_accessing_dashboard()
     {
-        $this->actingAsUser();
+        $this->actingAsUser('admin');
 
         $this->get(route('dashboard'))
             ->assertRedirect(route('tenants.create'));
     }
 
     /** @test */
-    public function user_with_tenant_can_access_dashboard()
+    public function admin_with_tenant_can_access_dashboard()
     {
-        $this->actingAsUser();
+        $this->actingAsUser('admin');
 
         Tenant::factory()->create();
 
@@ -41,20 +49,20 @@ class TenantMiddlewareTest extends TestCase
     }
 
     /** @test */
-    public function user_with_tenant_cannot_access_tenant_create()
+    public function admin_with_tenant_cannot_access_tenant_create()
     {
-        $this->actingAsUser();
+        $this->actingAsUser('admin');
 
         Tenant::factory()->create();
-        
+
         $this->get(route('tenants.create'))
             ->assertRedirect(route('dashboard'));
     }
 
     /** @test */
-    public function user_without_tenant_can_access_tenant_create()
+    public function admin_without_tenant_can_access_tenant_create()
     {
-        $this->actingAsUser();
+        $this->actingAsUser('admin');
 
         $this->get(route('tenants.create'))
             ->assertStatus(200);
